@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Shop Risk Assessment</title>
+<title>Delivery Site Risk Assessment</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
@@ -47,7 +47,7 @@
     font-size:14px;
   }
   main{
-    max-width:640px;
+    max-width:680px;
     margin:0 auto;
     padding:20px 16px 0;
   }
@@ -95,64 +95,171 @@
   .status-line.err{color:var(--high);}
   .status-line.ok{color:var(--accent);}
 
-  .q-eyebrow{
+  .section-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:4px;
+  }
+  .section-eyebrow{
     font-family:'IBM Plex Mono',monospace;
     font-size:12px;
+    color:var(--accent);
+    letter-spacing:.04em;
+  }
+  .section-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:17px;
+    font-weight:600;
+    margin:2px 0 2px;
+  }
+  .section-summary{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-bottom:14px;
+  }
+  .section-badge{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:11px;
+    padding:3px 10px;
+    border-radius:999px;
+    letter-spacing:.03em;
+    text-transform:uppercase;
+    white-space:nowrap;
+  }
+  .section-badge.low{background:var(--low-bg);color:var(--low);}
+  .section-badge.medium{background:var(--medium-bg);color:var(--medium);}
+  .section-badge.high{background:var(--high-bg);color:var(--high);}
+
+  .question{
+    padding:14px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .question:last-child{border-bottom:none;}
+  .q-eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
     color:var(--accent);
     letter-spacing:.04em;
   }
   .q-text{
     font-size:15px;
     font-weight:500;
-    margin:4px 0 12px;
+    margin:4px 0 10px;
     line-height:1.4;
   }
-  .scale{
-    display:grid;
-    grid-template-columns:repeat(6,1fr);
-    gap:6px;
+
+  .yn-row{
+    display:flex;
+    gap:8px;
   }
-  .scale label{
+  .yn-row label{
+    flex:1;
     position:relative;
   }
-  .scale input{
+  .yn-row input{
     position:absolute;
     opacity:0;
     inset:0;
     cursor:pointer;
   }
-  .scale span{
+  .yn-row span{
+    display:block;
+    text-align:center;
+    padding:9px 0;
+    border:1px solid var(--line);
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink-soft);
+    background:var(--paper);
+  }
+  .yn-row input:checked + span{
+    background:var(--ink);
+    color:#fff;
+    border-color:var(--ink);
+  }
+
+  .lc-block{
+    display:none;
+    margin-top:14px;
+    padding-top:14px;
+    border-top:1px dashed var(--line);
+  }
+  .lc-block.show{display:block;}
+  .lc-label{
+    font-size:12px;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+  }
+  .lc-scale{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:6px;
+    margin-bottom:14px;
+  }
+  .lc-scale label{
+    position:relative;
+  }
+  .lc-scale input{
+    position:absolute;
+    opacity:0;
+    inset:0;
+    cursor:pointer;
+  }
+  .lc-scale span{
     display:flex;
     flex-direction:column;
     align-items:center;
     justify-content:center;
     border:1px solid var(--line);
     border-radius:8px;
-    padding:8px 2px 6px;
+    padding:7px 2px 5px;
     font-family:'IBM Plex Mono',monospace;
-    font-size:14px;
+    font-size:13px;
     font-weight:600;
     color:var(--ink-soft);
     background:var(--paper);
   }
-  .scale span small{
+  .lc-scale span small{
     font-family:'Inter',sans-serif;
     font-weight:400;
-    font-size:9px;
+    font-size:8px;
     margin-top:2px;
-    letter-spacing:.02em;
+    letter-spacing:.01em;
   }
-  .scale input:checked + span{
+  .lc-scale input:checked + span{
     background:var(--ink);
     color:#fff;
     border-color:var(--ink);
   }
-
-  .question{
-    padding:16px 0;
-    border-bottom:1px solid var(--line);
+  .lc-score{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--ink-soft);
   }
-  .question:last-child{border-bottom:none;}
+  .lc-score b{color:var(--ink);}
+
+  .notes-block{
+    display:none;
+    margin-top:12px;
+  }
+  .notes-block.show{display:block;}
+  .notes-block textarea{
+    width:100%;
+    min-height:64px;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    resize:vertical;
+  }
 
   #results{
     position:sticky;
@@ -163,7 +270,7 @@
     box-shadow:0 -4px 16px rgba(0,0,0,.05);
   }
   .results-inner{
-    max-width:640px;
+    max-width:680px;
     margin:0 auto;
   }
   .results-top{
@@ -174,8 +281,9 @@
   }
   .total-score{
     font-family:'IBM Plex Mono',monospace;
-    font-size:20px;
+    font-size:16px;
     font-weight:600;
+    color:var(--ink-soft);
   }
   .rating-badge{
     font-family:'Space Grotesk',sans-serif;
@@ -190,23 +298,6 @@
   .rating-badge.medium{background:var(--medium-bg);color:var(--medium);}
   .rating-badge.high{background:var(--high-bg);color:var(--high);}
 
-  .meter{
-    position:relative;
-    height:10px;
-    border-radius:999px;
-    background:linear-gradient(to right, var(--low) 0%, var(--low) 40%, var(--medium) 40%, var(--medium) 70%, var(--high) 70%, var(--high) 100%);
-    margin-bottom:8px;
-  }
-  .meter-pointer{
-    position:absolute;
-    top:-4px;
-    width:3px;
-    height:18px;
-    background:var(--ink);
-    border-radius:2px;
-    transform:translateX(-1.5px);
-    transition:left .25s ease;
-  }
   .save-row{
     display:flex;
     gap:10px;
@@ -235,8 +326,8 @@
 <body>
 
 <header>
-  <h1>Shop Risk Assessment</h1>
-  <p>Score each question 0–5, save by shop number, come back any time.</p>
+  <h1>Delivery Site Risk Assessment</h1>
+  <p>Answer each question, save by shop number, come back any time.</p>
 </header>
 
 <main>
@@ -247,7 +338,7 @@
   </div>
 
   <div class="card">
-    <div class="q-eyebrow">SHOP</div>
+    <div class="section-eyebrow">SHOP</div>
     <div class="shop-row">
       <input id="shopNumber" type="text" placeholder="e.g. 042" autocomplete="off" />
       <button class="btn-ghost" id="loadBtn">Load</button>
@@ -255,19 +346,14 @@
     <div class="status-line" id="loadStatus"></div>
   </div>
 
-  <div class="card" id="questionCard">
-    <!-- questions injected here -->
-  </div>
+  <div id="sectionsContainer"><!-- sections injected here --></div>
 </main>
 
 <div id="results">
   <div class="results-inner">
     <div class="results-top">
-      <div class="total-score" id="totalScore">0 / 0</div>
+      <div class="total-score" id="totalScore">Overall risk</div>
       <div class="rating-badge low" id="ratingBadge">LOW</div>
-    </div>
-    <div class="meter">
-      <div class="meter-pointer" id="meterPointer" style="left:0%;"></div>
     </div>
     <div class="save-row">
       <button class="btn-primary" id="saveBtn">Save assessment</button>
@@ -278,35 +364,66 @@
 
 <script type="module">
   // ---------------------------------------------------------------
-  // 1. QUESTIONS
+  // 1. SECTIONS & QUESTIONS
   //    Edit this list to match what you actually want to assess.
-  //    Each answer is scored 0 (no risk) to 5 (severe risk).
+  //    Each question is answered Yes/No. If "Yes", a Likelihood (1-5)
+  //    and Consequence (1-5) score appears and is multiplied together
+  //    to give that question's risk points (max 25).
+  //    Set hasNotes: true to add a free-text box under a question,
+  //    shown alongside Likelihood/Consequence when answered "Yes".
   // ---------------------------------------------------------------
-  const QUESTIONS = [
-    { id: "fire_exits",      text: "Fire exits are clear and unobstructed" },
-    { id: "fire_equipment",  text: "Fire extinguishers/alarms are in place and in date" },
-    { id: "electrical",      text: "Electrical equipment and wiring are in safe condition" },
-    { id: "trip_hazards",    text: "Floors and walkways are free of trip/slip hazards" },
-    { id: "stock_storage",   text: "Stock is stored safely (no overloaded shelving, blocked aisles)" },
-    { id: "security",        text: "Doors, locks and alarms are working and used correctly" },
-    { id: "cash_handling",   text: "Cash handling and till security follow procedure" },
-    { id: "first_aid",       text: "First aid kit is stocked and accessible" },
-    { id: "staff_training",  text: "Staff have had up-to-date health & safety training" },
-    { id: "hygiene",         text: "General cleanliness and hygiene standards are met" },
+  const SECTIONS = [
+    {
+      id: "parking",
+      title: "Parking",
+      questions: [
+        { id: "loading_area",   text: "Is there a designated loading / unloading area?" },
+        { id: "parking_safe",   text: "Is parking safe and legal?" },
+        { id: "parking_distance", text: "Is there a significant distance from parking to shop entrance?" },
+      ],
+    },
+    {
+      id: "route",
+      title: "Access Route",
+      questions: [
+        { id: "route_obstructed", text: "Is the route clear of obstructions?" },
+        { id: "route_uneven",     text: "Are there any slopes, steps, or uneven surfaces?" },
+        { id: "route_public",     text: "Is the route through a public area?" },
+      ],
+    },
+    {
+      id: "delivery_entrance",
+      title: "Delivery Entrance",
+      questions: [
+        { id: "extra_equipment",  text: "Is additional equipment needed?" },
+        { id: "entrance_secure",  text: "Is the delivery entrance secure and accessible?" },
+        { id: "time_restrictions", text: "Are there any time restrictions for deliveries?" },
+        { id: "street_furniture", text: "Is there street furniture or obstructions?" },
+      ],
+    },
+    {
+      id: "other",
+      title: "Other Considerations",
+      questions: [
+        { id: "unsociable_activity", text: "Is the delivery location safe from unsociable activity?" },
+        { id: "additional_observations", text: "Are there any other additional observations?", hasNotes: true },
+      ],
+    },
   ];
-  // Note: for each question, 0 = no risk / fully fine, 5 = severe risk / needs urgent attention.
 
-  // Thresholds as a % of the maximum possible score.
-  const LOW_MAX = 40;     // 0-40%   -> Low
-  const MEDIUM_MAX = 70;  // 41-70%  -> Medium, above -> High
+  // Section risk % thresholds (section total / section max points)
+  const SECTION_MEDIUM_THRESHOLD = 0.2; // over this -> medium
+  const SECTION_HIGH_THRESHOLD = 0.4;   // over this -> high
 
-  const MAX_SCORE = QUESTIONS.length * 5;
+  const LC_MIN = 0;
+  const LC_MAX = 5;                      // Likelihood and Consequence are each scored 0-5
+  const LC_LABELS = {
+    likelihood: { 0: "none", 5: "certain" },
+    consequence: { 0: "none", 5: "severe" },
+  };
 
   // ---------------------------------------------------------------
   // 2. FIREBASE CONFIG
-  //    Replace the values below with the ones from your own Firebase
-  //    project (Project settings -> General -> Your apps -> SDK setup).
-  //    See the README for step-by-step instructions.
   // ---------------------------------------------------------------
   const firebaseConfig = {
     apiKey: "AIzaSyBvCAAaAlcfQlwTv1n7htD0YaysUXm1YiQ",
@@ -335,74 +452,206 @@
   }
 
   // ---------------------------------------------------------------
-  // 3. RENDER QUESTIONS
+  // 3. RENDER SECTIONS
   // ---------------------------------------------------------------
-  const questionCard = document.getElementById("questionCard");
+  const sectionsContainer = document.getElementById("sectionsContainer");
 
-  QUESTIONS.forEach((q, i) => {
-    const wrap = document.createElement("div");
-    wrap.className = "question";
-    const num = String(i + 1).padStart(2, "0");
-
-    let scaleHtml = "";
-    for (let v = 0; v <= 5; v++) {
-      scaleHtml += `
+  function lcScaleHtml(qid, kind) {
+    let html = "";
+    for (let v = LC_MIN; v <= LC_MAX; v++) {
+      const label = LC_LABELS[kind][v] || "";
+      html += `
         <label>
-          <input type="radio" name="${q.id}" value="${v}" ${v === 0 ? "checked" : ""} />
-          <span>${v}<small>${v === 0 ? "none" : v === 5 ? "severe" : ""}</small></span>
+          <input type="radio" name="${qid}_${kind}" value="${v}" ${v === LC_MIN ? "checked" : ""} />
+          <span>${v}<small>${label}</small></span>
         </label>`;
     }
+    return html;
+  }
 
-    wrap.innerHTML = `
-      <div class="q-eyebrow">Q${num}</div>
-      <div class="q-text">${q.text}</div>
-      <div class="scale">${scaleHtml}</div>
+  SECTIONS.forEach((section, sIdx) => {
+    const sectionEl = document.createElement("div");
+    sectionEl.className = "card";
+    sectionEl.dataset.sectionId = section.id;
+    const sNum = String(sIdx + 1).padStart(2, "0");
+
+    let questionsHtml = "";
+    section.questions.forEach((q, qIdx) => {
+      const qNum = String(qIdx + 1).padStart(2, "0");
+      questionsHtml += `
+        <div class="question" data-question-id="${q.id}">
+          <div class="q-eyebrow">${sNum}.${qNum}</div>
+          <div class="q-text">${q.text}</div>
+          <div class="yn-row">
+            <label>
+              <input type="radio" name="${q.id}_yn" value="no" checked />
+              <span>No</span>
+            </label>
+            <label>
+              <input type="radio" name="${q.id}_yn" value="yes" />
+              <span>Yes</span>
+            </label>
+          </div>
+          ${q.hasNotes ? `
+          <div class="notes-block" data-notes-for="${q.id}">
+            <textarea name="${q.id}_notes" placeholder="Add details..."></textarea>
+          </div>` : ""}
+          <div class="lc-block${q.hasNotes ? "" : " show"}" data-lc-for="${q.id}">
+            <div class="lc-label">Likelihood</div>
+            <div class="lc-scale">${lcScaleHtml(q.id, "likelihood")}</div>
+            <div class="lc-label">Consequence</div>
+            <div class="lc-scale">${lcScaleHtml(q.id, "consequence")}</div>
+            <div class="lc-score">Risk points: <b data-lc-score="${q.id}">0</b> / ${LC_MAX * LC_MAX}</div>
+          </div>
+        </div>`;
+    });
+
+    sectionEl.innerHTML = `
+      <div class="section-head">
+        <div>
+          <div class="section-eyebrow">SECTION ${sNum}</div>
+          <div class="section-title">${section.title}</div>
+        </div>
+        <div class="section-badge low" data-section-badge="${section.id}">LOW</div>
+      </div>
+      <div class="section-summary" data-section-summary="${section.id}">0 / 0 points (0%)</div>
+      ${questionsHtml}
     `;
-    questionCard.appendChild(wrap);
+    sectionsContainer.appendChild(sectionEl);
   });
 
-  questionCard.addEventListener("change", updateResults);
+  // Question ids where Likelihood/Consequence (and any notes box) stay hidden
+  // until the question is answered "Yes". All other questions show their
+  // Likelihood/Consequence boxes all the time and are always scored.
+  const gatedQuestionIds = new Set();
+  SECTIONS.forEach(section => {
+    section.questions.forEach(q => {
+      if (q.hasNotes) gatedQuestionIds.add(q.id);
+    });
+  });
+
+  // Show/hide the gated Likelihood x Consequence block (and notes box) when Yes/No changes
+  sectionsContainer.addEventListener("change", (e) => {
+    if (e.target.name && e.target.name.endsWith("_yn")) {
+      const qid = e.target.name.replace(/_yn$/, "");
+      if (gatedQuestionIds.has(qid)) {
+        const lcBlock = sectionsContainer.querySelector(`[data-lc-for="${qid}"]`);
+        const notesBlock = sectionsContainer.querySelector(`[data-notes-for="${qid}"]`);
+        const isYes = e.target.value === "yes";
+        if (lcBlock) lcBlock.classList.toggle("show", isYes);
+        if (notesBlock) notesBlock.classList.toggle("show", isYes);
+      }
+    }
+    updateResults();
+  });
 
   // ---------------------------------------------------------------
   // 4. SCORING
   // ---------------------------------------------------------------
   function getAnswers() {
-    const answers = {};
-    QUESTIONS.forEach(q => {
-      const checked = questionCard.querySelector(`input[name="${q.id}"]:checked`);
-      answers[q.id] = checked ? Number(checked.value) : 0;
+    const sections = {};
+    SECTIONS.forEach(section => {
+      const answers = {};
+      section.questions.forEach(q => {
+        const ynInput = sectionsContainer.querySelector(`input[name="${q.id}_yn"]:checked`);
+        const yn = ynInput ? ynInput.value : "no";
+        const lInput = sectionsContainer.querySelector(`input[name="${q.id}_likelihood"]:checked`);
+        const cInput = sectionsContainer.querySelector(`input[name="${q.id}_consequence"]:checked`);
+        const likelihood = lInput ? Number(lInput.value) : 0;
+        const consequence = cInput ? Number(cInput.value) : 0;
+        let notes = undefined;
+        if (q.hasNotes) {
+          const textarea = sectionsContainer.querySelector(`textarea[name="${q.id}_notes"]`);
+          notes = textarea ? textarea.value : "";
+        }
+        answers[q.id] = { yn, likelihood, consequence, notes };
+      });
+      sections[section.id] = answers;
     });
-    return answers;
+    return sections;
   }
 
-  function setAnswers(answers) {
-    QUESTIONS.forEach(q => {
-      const val = answers && answers[q.id] != null ? answers[q.id] : 0;
-      const input = questionCard.querySelector(`input[name="${q.id}"][value="${val}"]`);
-      if (input) input.checked = true;
+  function setAnswers(sections) {
+    SECTIONS.forEach(section => {
+      const sectionAnswers = (sections && sections[section.id]) || {};
+      section.questions.forEach(q => {
+        const a = sectionAnswers[q.id] || { yn: "no", likelihood: 0, consequence: 0, notes: "" };
+        const ynInput = sectionsContainer.querySelector(`input[name="${q.id}_yn"][value="${a.yn}"]`);
+        if (ynInput) ynInput.checked = true;
+
+        if (gatedQuestionIds.has(q.id)) {
+          const lcBlock = sectionsContainer.querySelector(`[data-lc-for="${q.id}"]`);
+          const notesBlock = sectionsContainer.querySelector(`[data-notes-for="${q.id}"]`);
+          const isYes = a.yn === "yes";
+          if (lcBlock) lcBlock.classList.toggle("show", isYes);
+          if (notesBlock) notesBlock.classList.toggle("show", isYes);
+        }
+
+        const lVal = a.likelihood != null ? a.likelihood : 0;
+        const cVal = a.consequence != null ? a.consequence : 0;
+        const lInput = sectionsContainer.querySelector(`input[name="${q.id}_likelihood"][value="${lVal}"]`);
+        const cInput = sectionsContainer.querySelector(`input[name="${q.id}_consequence"][value="${cVal}"]`);
+        if (lInput) lInput.checked = true;
+        if (cInput) cInput.checked = true;
+
+        if (q.hasNotes) {
+          const textarea = sectionsContainer.querySelector(`textarea[name="${q.id}_notes"]`);
+          if (textarea) textarea.value = a.notes || "";
+        }
+      });
     });
     updateResults();
   }
 
-  function computeRating(percentage) {
-    if (percentage <= LOW_MAX) return "low";
-    if (percentage <= MEDIUM_MAX) return "medium";
-    return "high";
+  function ratingFromPercentage(percentage) {
+    if (percentage > SECTION_HIGH_THRESHOLD) return "high";
+    if (percentage > SECTION_MEDIUM_THRESHOLD) return "medium";
+    return "low";
   }
 
   function updateResults() {
-    const answers = getAnswers();
-    const total = Object.values(answers).reduce((a, b) => a + b, 0);
-    const percentage = (total / MAX_SCORE) * 100;
-    const rating = computeRating(percentage);
+    const sections = getAnswers();
+    let overallRating = "low";
+    const sectionResults = {};
 
-    document.getElementById("totalScore").textContent = `${total} / ${MAX_SCORE}`;
-    const badge = document.getElementById("ratingBadge");
-    badge.textContent = rating;
-    badge.className = `rating-badge ${rating}`;
-    document.getElementById("meterPointer").style.left = `${percentage}%`;
+    SECTIONS.forEach(section => {
+      const answers = sections[section.id];
+      let total = 0;
+      section.questions.forEach(q => {
+        const a = answers[q.id];
+        const counts = q.hasNotes ? a.yn === "yes" : true;
+        const points = counts ? (a.likelihood || 0) * (a.consequence || 0) : 0;
+        total += points;
 
-    return { answers, total, percentage, rating };
+        // update the little "risk points" readout next to each question
+        const scoreEl = sectionsContainer.querySelector(`[data-lc-score="${q.id}"]`);
+        if (scoreEl) scoreEl.textContent = points;
+      });
+      const max = section.questions.length * LC_MAX * LC_MAX;
+      const percentage = max > 0 ? total / max : 0;
+      const rating = ratingFromPercentage(percentage);
+
+      sectionResults[section.id] = { total, max, percentage, rating };
+
+      if (rating === "high") overallRating = "high";
+      if (rating === "medium" && overallRating !== "high") overallRating = "medium";
+
+      const badgeEl = sectionsContainer.querySelector(`[data-section-badge="${section.id}"]`);
+      if (badgeEl) {
+        badgeEl.textContent = rating;
+        badgeEl.className = `section-badge ${rating}`;
+      }
+      const summaryEl = sectionsContainer.querySelector(`[data-section-summary="${section.id}"]`);
+      if (summaryEl) {
+        summaryEl.textContent = `${total} / ${max} points (${Math.round(percentage * 100)}%)`;
+      }
+    });
+
+    const ratingBadge = document.getElementById("ratingBadge");
+    ratingBadge.textContent = overallRating;
+    ratingBadge.className = `rating-badge ${overallRating}`;
+
+    return { sections, sectionResults, overallRating };
   }
 
   // ---------------------------------------------------------------
@@ -434,7 +683,7 @@
       const snap = await getDoc(ref);
       if (snap.exists()) {
         const data = snap.data();
-        setAnswers(data.answers);
+        setAnswers(data.sections);
         const when = data.updatedAt && data.updatedAt.toDate
           ? data.updatedAt.toDate().toLocaleString()
           : "an earlier date";
@@ -459,18 +708,16 @@
       setStatus(saveStatus, "Firebase isn't configured yet — see the notice above.", "err");
       return;
     }
-    const { answers, total, percentage, rating } = updateResults();
+    const { sections, sectionResults, overallRating } = updateResults();
     setStatus(saveStatus, "Saving…");
     try {
       const { doc, setDoc, serverTimestamp } = firestoreFns;
       const ref = doc(db, "shopRiskAssessments", shopNumber);
       await setDoc(ref, {
         shopNumber,
-        answers,
-        total,
-        maxScore: MAX_SCORE,
-        percentage: Math.round(percentage),
-        rating,
+        sections,
+        sectionResults,
+        overallRating,
         updatedAt: serverTimestamp(),
       });
       setStatus(saveStatus, `Saved for shop ${shopNumber}.`, "ok");
