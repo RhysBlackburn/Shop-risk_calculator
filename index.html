@@ -559,12 +559,12 @@
         const cInput = sectionsContainer.querySelector(`input[name="${q.id}_consequence"]:checked`);
         const likelihood = lInput ? Number(lInput.value) : 0;
         const consequence = cInput ? Number(cInput.value) : 0;
-        let notes = undefined;
+        const answer = { yn, likelihood, consequence };
         if (q.hasNotes) {
           const textarea = sectionsContainer.querySelector(`textarea[name="${q.id}_notes"]`);
-          notes = textarea ? textarea.value : "";
+          answer.notes = textarea ? textarea.value : "";
         }
-        answers[q.id] = { yn, likelihood, consequence, notes };
+        answers[q.id] = answer;
       });
       sections[section.id] = answers;
     });
