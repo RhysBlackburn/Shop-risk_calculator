@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shop Risk Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B2430;
+    --ink-soft:#4B5768;
+    --paper:#F7F8FA;
+    --card:#FFFFFF;
+    --line:#E3E7ED;
+    --accent:#2F6F5E;
+    --accent-soft:#E7F0EC;
+    --low:#2F8F5B;
+    --low-bg:#E9F6EF;
+    --medium:#C7871F;
+    --medium-bg:#FBF1DF;
+    --high:#C1443C;
+    --high-bg:#FBEAE9;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    padding-bottom:80px;
+  }
+  header{
+    background:var(--ink);
+    color:#fff;
+    padding:28px 20px 24px;
+  }
+  header h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:22px;
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+  }
+  header p{
+    margin:0;
+    color:#B7C0CC;
+    font-size:14px;
+  }
+  main{
+    max-width:640px;
+    margin:0 auto;
+    padding:20px 16px 0;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:20px;
+    margin-bottom:16px;
+  }
+  .shop-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .shop-row input{
+    flex:1;
+    min-width:140px;
+    padding:11px 12px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    font-size:15px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  button{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    border:none;
+    border-radius:8px;
+    padding:11px 16px;
+    cursor:pointer;
+    transition:opacity .15s ease;
+  }
+  button:hover{opacity:.88;}
+  button:active{opacity:.75;}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-ghost{background:var(--accent-soft);color:var(--accent);}
+  .status-line{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-top:10px;
+    min-height:16px;
+  }
+  .status-line.err{color:var(--high);}
+  .status-line.ok{color:var(--accent);}
+ 
+  .q-eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--accent);
+    letter-spacing:.04em;
+  }
+  .q-text{
+    font-size:15px;
+    font-weight:500;
+    margin:4px 0 12px;
+    line-height:1.4;
+  }
+  .scale{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:6px;
+  }
+  .scale label{
+    position:relative;
+  }
+  .scale input{
+    position:absolute;
+    opacity:0;
+    inset:0;
+    cursor:pointer;
+  }
+  .scale span{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:8px 2px 6px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:14px;
+    font-weight:600;
+    color:var(--ink-soft);
+    background:var(--paper);
+  }
+  .scale span small{
+    font-family:'Inter',sans-serif;
+    font-weight:400;
+    font-size:9px;
+    margin-top:2px;
+    letter-spacing:.02em;
+  }
+  .scale input:checked + span{
+    background:var(--ink);
+    color:#fff;
+    border-color:var(--ink);
+  }
+ 
+  .question{
+    padding:16px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .question:last-child{border-bottom:none;}
+ 
+  #results{
+    position:sticky;
+    bottom:0;
+    background:var(--card);
+    border-top:1px solid var(--line);
+    padding:16px;
+    box-shadow:0 -4px 16px rgba(0,0,0,.05);
+  }
+  .results-inner{
+    max-width:640px;
+    margin:0 auto;
+  }
+  .results-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:10px;
+  }
+  .total-score{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:20px;
+    font-weight:600;
+  }
+  .rating-badge{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    padding:5px 12px;
+    border-radius:999px;
+    letter-spacing:.03em;
+    text-transform:uppercase;
+  }
+  .rating-badge.low{background:var(--low-bg);color:var(--low);}
+  .rating-badge.medium{background:var(--medium-bg);color:var(--medium);}
+  .rating-badge.high{background:var(--high-bg);color:var(--high);}
+ 
+  .meter{
+    position:relative;
+    height:10px;
+    border-radius:999px;
+    background:linear-gradient(to right, var(--low) 0%, var(--low) 40%, var(--medium) 40%, var(--medium) 70%, var(--high) 70%, var(--high) 100%);
+    margin-bottom:8px;
+  }
+  .meter-pointer{
+    position:absolute;
+    top:-4px;
+    width:3px;
+    height:18px;
+    background:var(--ink);
+    border-radius:2px;
+    transform:translateX(-1.5px);
+    transition:left .25s ease;
+  }
+  .save-row{
+    display:flex;
+    gap:10px;
+    margin-top:12px;
+  }
+  .save-row button{flex:1;}
+ 
+  .config-warning{
+    background:var(--high-bg);
+    color:var(--high);
+    border:1px solid #F1CFCC;
+    border-radius:10px;
+    padding:14px 16px;
+    font-size:13px;
+    margin-bottom:16px;
+    line-height:1.5;
+  }
+  .config-warning code{
+    background:#fff;
+    padding:1px 5px;
+    border-radius:4px;
+    font-size:12px;
+  }
+</style>
+</head>
+<body>
+ 
+<header>
+  <h1>Shop Risk Assessment</h1>
+  <p>Score each question 0–5, save by shop number, come back any time.</p>
+</header>
+ 
+<main>
+  <div id="configWarning" class="config-warning" style="display:none;">
+    Firebase isn't configured yet. Open <code>index.html</code> and fill in the
+    <code>firebaseConfig</code> object near the bottom of the file with your own
+    project's keys, then reload this page.
+  </div>
+ 
+  <div class="card">
+    <div class="q-eyebrow">SHOP</div>
+    <div class="shop-row">
+      <input id="shopNumber" type="text" placeholder="e.g. 042" autocomplete="off" />
+      <button class="btn-ghost" id="loadBtn">Load</button>
+    </div>
+    <div class="status-line" id="loadStatus"></div>
+  </div>
+ 
+  <div class="card" id="questionCard">
+    <!-- questions injected here -->
+  </div>
+</main>
+ 
+<div id="results">
+  <div class="results-inner">
+    <div class="results-top">
+      <div class="total-score" id="totalScore">0 / 0</div>
+      <div class="rating-badge low" id="ratingBadge">LOW</div>
+    </div>
+    <div class="meter">
+      <div class="meter-pointer" id="meterPointer" style="left:0%;"></div>
+    </div>
+    <div class="save-row">
+      <button class="btn-primary" id="saveBtn">Save assessment</button>
+    </div>
+    <div class="status-line" id="saveStatus"></div>
+  </div>
+</div>
+ 
+<script type="module">
+  // ---------------------------------------------------------------
+  // 1. QUESTIONS
+  //    Edit this list to match what you actually want to assess.
+  //    Each answer is scored 0 (no risk) to 5 (severe risk).
+  // ---------------------------------------------------------------
+  const QUESTIONS = [
+    { id: "fire_exits",      text: "Fire exits are clear and unobstructed" },
+    { id: "fire_equipment",  text: "Fire extinguishers/alarms are in place and in date" },
+    { id: "electrical",      text: "Electrical equipment and wiring are in safe condition" },
+    { id: "trip_hazards",    text: "Floors and walkways are free of trip/slip hazards" },
+    { id: "stock_storage",   text: "Stock is stored safely (no overloaded shelving, blocked aisles)" },
+    { id: "security",        text: "Doors, locks and alarms are working and used correctly" },
+    { id: "cash_handling",   text: "Cash handling and till security follow procedure" },
+    { id: "first_aid",       text: "First aid kit is stocked and accessible" },
+    { id: "staff_training",  text: "Staff have had up-to-date health & safety training" },
+    { id: "hygiene",         text: "General cleanliness and hygiene standards are met" },
+  ];
+  // Note: for each question, 0 = no risk / fully fine, 5 = severe risk / needs urgent attention.
+ 
+  // Thresholds as a % of the maximum possible score.
+  const LOW_MAX = 40;     // 0-40%   -> Low
+  const MEDIUM_MAX = 70;  // 41-70%  -> Medium, above -> High
+ 
+  const MAX_SCORE = QUESTIONS.length * 5;
+ 
+  // ---------------------------------------------------------------
+  // 2. FIREBASE CONFIG
+  //    Replace the values below with the ones from your own Firebase
+  //    project (Project settings -> General -> Your apps -> SDK setup).
+  //    See the README for step-by-step instructions.
+  // ---------------------------------------------------------------
+  const firebaseConfig = {
+    apiKey: "AIzaSyBvCAAaAlcfQlwTv1n7htD0YaysUXm1YiQ",
+    authDomain: "shop-risk-rating-calculator.firebaseapp.com",
+    projectId: "shop-risk-rating-calculator",
+    storageBucket: "shop-risk-rating-calculator.firebasestorage.app",
+    messagingSenderId: "1045936015695",
+    appId: "G-NF465QDN6F",
+  };
+ 
+  const isConfigured = !Object.values(firebaseConfig).some(v => String(v).startsWith("YOUR_"));
+  if (!isConfigured) {
+    document.getElementById("configWarning").style.display = "block";
+  }
+ 
+  let db = null;
+  let firestoreFns = null;
+ 
+  async function initFirebase() {
+    if (!isConfigured) return;
+    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+    const fs = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    const app = initializeApp(firebaseConfig);
+    db = fs.getFirestore(app);
+    firestoreFns = fs;
+  }
+ 
+  // ---------------------------------------------------------------
+  // 3. RENDER QUESTIONS
+  // ---------------------------------------------------------------
+  const questionCard = document.getElementById("questionCard");
+ 
+  QUESTIONS.forEach((q, i) => {
+    const wrap = document.createElement("div");
+    wrap.className = "question";
+    const num = String(i + 1).padStart(2, "0");
+ 
+    let scaleHtml = "";
+    for (let v = 0; v <= 5; v++) {
+      scaleHtml += `
+        <label>
+          <input type="radio" name="${q.id}" value="${v}" ${v === 0 ? "checked" : ""} />
+          <span>${v}<small>${v === 0 ? "none" : v === 5 ? "severe" : ""}</small></span>
+        </label>`;
+    }
+ 
+    wrap.innerHTML = `
+      <div class="q-eyebrow">Q${num}</div>
+      <div class="q-text">${q.text}</div>
+      <div class="scale">${scaleHtml}</div>
+    `;
+    questionCard.appendChild(wrap);
+  });
+ 
+  questionCard.addEventListener("change", updateResults);
+ 
+  // ---------------------------------------------------------------
+  // 4. SCORING
+  // ---------------------------------------------------------------
+  function getAnswers() {
+    const answers = {};
+    QUESTIONS.forEach(q => {
+      const checked = questionCard.querySelector(`input[name="${q.id}"]:checked`);
+      answers[q.id] = checked ? Number(checked.value) : 0;
+    });
+    return answers;
+  }
+ 
+  function setAnswers(answers) {
+    QUESTIONS.forEach(q => {
+      const val = answers && answers[q.id] != null ? answers[q.id] : 0;
+      const input = questionCard.querySelector(`input[name="${q.id}"][value="${val}"]`);
+      if (input) input.checked = true;
+    });
+    updateResults();
+  }
+ 
+  function computeRating(percentage) {
+    if (percentage <= LOW_MAX) return "low";
+    if (percentage <= MEDIUM_MAX) return "medium";
+    return "high";
+  }
+ 
+  function updateResults() {
+    const answers = getAnswers();
+    const total = Object.values(answers).reduce((a, b) => a + b, 0);
+    const percentage = (total / MAX_SCORE) *
