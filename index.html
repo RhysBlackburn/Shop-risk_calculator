@@ -94,7 +94,7 @@
   }
   .status-line.err{color:var(--high);}
   .status-line.ok{color:var(--accent);}
- 
+
   .q-eyebrow{
     font-family:'IBM Plex Mono',monospace;
     font-size:12px;
@@ -147,13 +147,13 @@
     color:#fff;
     border-color:var(--ink);
   }
- 
+
   .question{
     padding:16px 0;
     border-bottom:1px solid var(--line);
   }
   .question:last-child{border-bottom:none;}
- 
+
   #results{
     position:sticky;
     bottom:0;
@@ -189,7 +189,7 @@
   .rating-badge.low{background:var(--low-bg);color:var(--low);}
   .rating-badge.medium{background:var(--medium-bg);color:var(--medium);}
   .rating-badge.high{background:var(--high-bg);color:var(--high);}
- 
+
   .meter{
     position:relative;
     height:10px;
@@ -213,7 +213,7 @@
     margin-top:12px;
   }
   .save-row button{flex:1;}
- 
+
   .config-warning{
     background:var(--high-bg);
     color:var(--high);
@@ -233,19 +233,19 @@
 </style>
 </head>
 <body>
- 
+
 <header>
   <h1>Shop Risk Assessment</h1>
   <p>Score each question 0–5, save by shop number, come back any time.</p>
 </header>
- 
+
 <main>
   <div id="configWarning" class="config-warning" style="display:none;">
     Firebase isn't configured yet. Open <code>index.html</code> and fill in the
     <code>firebaseConfig</code> object near the bottom of the file with your own
     project's keys, then reload this page.
   </div>
- 
+
   <div class="card">
     <div class="q-eyebrow">SHOP</div>
     <div class="shop-row">
@@ -254,12 +254,12 @@
     </div>
     <div class="status-line" id="loadStatus"></div>
   </div>
- 
+
   <div class="card" id="questionCard">
     <!-- questions injected here -->
   </div>
 </main>
- 
+
 <div id="results">
   <div class="results-inner">
     <div class="results-top">
@@ -275,7 +275,7 @@
     <div class="status-line" id="saveStatus"></div>
   </div>
 </div>
- 
+
 <script type="module">
   // ---------------------------------------------------------------
   // 1. QUESTIONS
@@ -295,13 +295,13 @@
     { id: "hygiene",         text: "General cleanliness and hygiene standards are met" },
   ];
   // Note: for each question, 0 = no risk / fully fine, 5 = severe risk / needs urgent attention.
- 
+
   // Thresholds as a % of the maximum possible score.
   const LOW_MAX = 40;     // 0-40%   -> Low
   const MEDIUM_MAX = 70;  // 41-70%  -> Medium, above -> High
- 
+
   const MAX_SCORE = QUESTIONS.length * 5;
- 
+
   // ---------------------------------------------------------------
   // 2. FIREBASE CONFIG
   //    Replace the values below with the ones from your own Firebase
@@ -316,15 +316,15 @@
     messagingSenderId: "1045936015695",
     appId: "1:1045936015695:web:1e4d83707a958c3f01dd3a",
   };
- 
+
   const isConfigured = !Object.values(firebaseConfig).some(v => String(v).startsWith("YOUR_"));
   if (!isConfigured) {
     document.getElementById("configWarning").style.display = "block";
   }
- 
+
   let db = null;
   let firestoreFns = null;
- 
+
   async function initFirebase() {
     if (!isConfigured) return;
     const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
@@ -333,17 +333,17 @@
     db = fs.getFirestore(app);
     firestoreFns = fs;
   }
- 
+
   // ---------------------------------------------------------------
   // 3. RENDER QUESTIONS
   // ---------------------------------------------------------------
   const questionCard = document.getElementById("questionCard");
- 
+
   QUESTIONS.forEach((q, i) => {
     const wrap = document.createElement("div");
     wrap.className = "question";
     const num = String(i + 1).padStart(2, "0");
- 
+
     let scaleHtml = "";
     for (let v = 0; v <= 5; v++) {
       scaleHtml += `
@@ -352,7 +352,7 @@
           <span>${v}<small>${v === 0 ? "none" : v === 5 ? "severe" : ""}</small></span>
         </label>`;
     }
- 
+
     wrap.innerHTML = `
       <div class="q-eyebrow">Q${num}</div>
       <div class="q-text">${q.text}</div>
@@ -360,9 +360,9 @@
     `;
     questionCard.appendChild(wrap);
   });
- 
+
   questionCard.addEventListener("change", updateResults);
- 
+
   // ---------------------------------------------------------------
   // 4. SCORING
   // ---------------------------------------------------------------
@@ -374,7 +374,7 @@
     });
     return answers;
   }
- 
+
   function setAnswers(answers) {
     QUESTIONS.forEach(q => {
       const val = answers && answers[q.id] != null ? answers[q.id] : 0;
@@ -383,14 +383,109 @@
     });
     updateResults();
   }
- 
+
   function computeRating(percentage) {
     if (percentage <= LOW_MAX) return "low";
     if (percentage <= MEDIUM_MAX) return "medium";
     return "high";
   }
- 
+
   function updateResults() {
     const answers = getAnswers();
     const total = Object.values(answers).reduce((a, b) => a + b, 0);
-    const percentage = (total / MAX_SCORE) *
+    const percentage = (total / MAX_SCORE) * 100;
+    const rating = computeRating(percentage);
+
+    document.getElementById("totalScore").textContent = `${total} / ${MAX_SCORE}`;
+    const badge = document.getElementById("ratingBadge");
+    badge.textContent = rating;
+    badge.className = `rating-badge ${rating}`;
+    document.getElementById("meterPointer").style.left = `${percentage}%`;
+
+    return { answers, total, percentage, rating };
+  }
+
+  // ---------------------------------------------------------------
+  // 5. SAVE / LOAD
+  // ---------------------------------------------------------------
+  const shopInput = document.getElementById("shopNumber");
+  const loadStatus = document.getElementById("loadStatus");
+  const saveStatus = document.getElementById("saveStatus");
+
+  function setStatus(el, msg, type) {
+    el.textContent = msg;
+    el.className = `status-line ${type || ""}`;
+  }
+
+  async function loadAssessment() {
+    const shopNumber = shopInput.value.trim();
+    if (!shopNumber) {
+      setStatus(loadStatus, "Enter a shop number first.", "err");
+      return;
+    }
+    if (!isConfigured) {
+      setStatus(loadStatus, "Firebase isn't configured yet — see the notice above.", "err");
+      return;
+    }
+    setStatus(loadStatus, "Loading…");
+    try {
+      const { doc, getDoc } = firestoreFns;
+      const ref = doc(db, "shopRiskAssessments", shopNumber);
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        const data = snap.data();
+        setAnswers(data.answers);
+        const when = data.updatedAt && data.updatedAt.toDate
+          ? data.updatedAt.toDate().toLocaleString()
+          : "an earlier date";
+        setStatus(loadStatus, `Loaded previous assessment (saved ${when}).`, "ok");
+      } else {
+        setAnswers({});
+        setStatus(loadStatus, `No saved assessment for shop ${shopNumber} yet — starting fresh.`, "ok");
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus(loadStatus, "Couldn't load — check your Firebase config and internet connection.", "err");
+    }
+  }
+
+  async function saveAssessment() {
+    const shopNumber = shopInput.value.trim();
+    if (!shopNumber) {
+      setStatus(saveStatus, "Enter a shop number first.", "err");
+      return;
+    }
+    if (!isConfigured) {
+      setStatus(saveStatus, "Firebase isn't configured yet — see the notice above.", "err");
+      return;
+    }
+    const { answers, total, percentage, rating } = updateResults();
+    setStatus(saveStatus, "Saving…");
+    try {
+      const { doc, setDoc, serverTimestamp } = firestoreFns;
+      const ref = doc(db, "shopRiskAssessments", shopNumber);
+      await setDoc(ref, {
+        shopNumber,
+        answers,
+        total,
+        maxScore: MAX_SCORE,
+        percentage: Math.round(percentage),
+        rating,
+        updatedAt: serverTimestamp(),
+      });
+      setStatus(saveStatus, `Saved for shop ${shopNumber}.`, "ok");
+    } catch (err) {
+      console.error(err);
+      setStatus(saveStatus, "Couldn't save — check your Firebase config and internet connection.", "err");
+    }
+  }
+
+  document.getElementById("loadBtn").addEventListener("click", loadAssessment);
+  document.getElementById("saveBtn").addEventListener("click", saveAssessment);
+
+  initFirebase();
+  updateResults();
+</script>
+
+</body>
+</html>
